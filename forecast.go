@@ -1,5 +1,7 @@
 package weather
 
+import "time"
+
 // DateTime represents a point in time specified in the response
 type DateTime struct {
 	Name      string  `xml:"name,attr"`      // Name is the title of what the DateTime object represents.
@@ -18,6 +20,11 @@ type DateTime struct {
 	Minute    int    `xml:"minute"`      // Minute is the minute of the day when the event occurred.
 	Timestamp string `xml:"timeStamp"`   // TimeStamp is a timestamp in the form of yyyymmddhhiiss where all times are UTC.
 	Summary   string `xml:"textSummary"` // Summary is a text summary of the DateTime e.g. Thursday June 11, 2020 at 19:30 UTC
+}
+
+// ToTime creates a new time object from the current object.
+func (d DateTime) ToTime() time.Time {
+	return time.Date(d.Year, time.Month(d.Month.Number), d.Day.Number, d.Hour, d.Minute, 0, 0, time.FixedZone(d.Zone,int(d.UTCOffset)))
 }
 
 // Location represents a specific place.
@@ -92,6 +99,11 @@ type MetricWithUnits struct {
 	Value float64 `xml:",chardata"`  // Value is the value of the reading.
 }
 
+type RiseSet struct {
+	Disclaimer string     `xml:"disclaimer"` // Legal disclaimer included with the sunrise/sunset data.
+	DateTime   []DateTime `xml:"dateTime"`   // List of date and times associated with the rising and setting of the sun.
+}
+
 // SiteData represents all the information about a site.
 // TODO: Pull in forecasts.
 type SiteData struct {
@@ -99,4 +111,5 @@ type SiteData struct {
 	Dates             []DateTime        `xml:"dateTime"`          // Dates describes some important dates and times associated with the data.
 	Location          Location          `xml:"location"`          // Location describes the location that this data relates to.
 	CurrentConditions CurrentConditions `xml:"currentConditions"` // CurrentConditions describes the current weather conditions at the location.
+	RiseSet           RiseSet           `xml:"riseSet"`           // RiseSet describes the sunrise and sunset times for the location
 }
